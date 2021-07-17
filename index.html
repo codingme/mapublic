@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+    user-scalable=no, shrink-to-fit=no" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Static</title>
+  <link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons" />
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.css" />
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="//unpkg.com/vue@2.6.12/dist/vue.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue.min.js"></script>
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="//unpkg.com/bootstrap-vue@2.21.2/dist/bootstrap-vue-icons.min.js"></script>
+  <script src="./dataSource.js"></script>
+  <script src="./jsonKeyMapping.js"></script>
+  <script src="./index.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div style="display: inline-block;">
+      <h2>各地施設まとめ</h2>
+    </div>
+    <div style="display: inline-block;">
+      <b-dd :text="prefs[selectedPref] + '：' + selectedCity">
+        <b-dd-group v-for="district in districts" :header="prefs[district.pref_en]">
+          <b-dd-item-btn v-for="(city, index) in district.cities" @click="showPlaces(Object.keys(city)[0])"
+            :active="selectedCity === Object.keys(city)[0]">
+            <span v-text="Object.values(city)[0]"></span>
+          </b-dd-item-btn>
+        </b-dd-group>
+      </b-dd>
+    </div>
+    <div>
+      <b-radio-group v-model="selectedCateg" :options="categoies" @change="showPlaces(selectedCity)"
+        button-variant="outline-primary" buttons></b-radio-group>
+    </div>
+    <div>
+      <b-alert show>近年行政整備済み分
+        <b-link href="//cio.go.jp/policy-opendata" target="_blank">詳細
+          <span class="material-icons orange600">open_in_new</span>
+        </b-link>（内閣官房推奨）<br />
+        <small class="text-light bg-dark">最新情報は各地までご確認ください</small>
+        <span v-text="!cityPlaces || (cityPlaces && counter === cityPlaces.length) ? 'ロード完了：' : 'ロード中：'"></span>
+        <span v-text="cityPlaces ? counter + '/' + cityPlaces.length : '0'" class="text-danger"></span>
+        場所
+      </b-alert>
+    </div>
+  </div>
+  <hr />
+  <div id="map" style="width: 100%; height: 380px;"></div>
+</body>
+<script
+  src="//maps.googleapis.com/maps/api/js?key=AIzaSyDe6N0jHalsgUJz1b4lGAo1if3X41rRY8s&language=ja&region=JP"></script>
+
+</html>
