@@ -18,14 +18,14 @@ window.onload = () => {
         districts: {
           osaka: [
             { en: "osaka", ja: "大阪市", categories: categories.osaka },
-            // { en: "toyonaka", ja: "豊中市", categories: categories.toyonaka },
+            { en: "toyonaka", ja: "豊中市", categories: categories.toyonaka },
           ]
         },
         cityPlaces: null,
         selectedPref: "osaka",
         selectedCity: { en: "osaka", ja: "大阪市", categories: categories.osaka },
-        selectedCateg: { en: "toilet", ja: "公衆トイレ" },
-        targetCateg: "toilet",
+        selectedCateg: { en: "none", ja: "未選択" },
+        targetCateg: "none",
         source: {}
       };
     },
@@ -37,8 +37,11 @@ window.onload = () => {
           m.setMap(null);
         }
         this.markers = [];
-
         this.selectedCity = city;
+        if ("none" === this.targetCateg) {
+          return false;
+        }
+
         const { text, value } = categories[city.en].filter(
           (val, idx) => val.value === this.targetCateg
         )[0];
@@ -126,15 +129,12 @@ window.onload = () => {
           position: { lat: Number(place.lat), lng: Number(place.lng) },
           map: this.gmap,
           label: {
-            text: this.selectedCateg.en === "vaccination" ? "接" : "ト",
+            text: this.source.assets.expression,
             color: "red",
             fontSize: "1.6em"
           },
           title: place.facility_name,
-          icon:
-            "http://maps.google.com/mapfiles/ms/icons/" +
-            (this.selectedCateg.en === "vaccination" ? "grn-pushpin" : "toilets") +
-            ".png",
+          icon: this.source.assets.icon,
           animation: google.maps.Animation.DROP,
           optimized: true
         });
@@ -178,13 +178,13 @@ window.onload = () => {
       downloadData: async function () {
         if (dataSources[this.targetCateg]
           && dataSources[this.targetCateg].hasOwnProperty(this.selectedCity.en)) {
-          this.source = dataSources[this.targetCateg][this.selectedCity.en];
+          this.source = dataSources[this.targetCateg];
         } else {
           this.places = null;
           return;
         }
-        console.debug(this.source);
-        await fetch(this.source.data, {
+
+        await fetch(this.source[this.selectedCity.en].data, {
           method: "get",
           headers: {
             "content-type": "text/csv;charset=UTF-8"
